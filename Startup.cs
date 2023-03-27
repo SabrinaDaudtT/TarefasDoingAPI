@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TarefasDoingAPI.Database;
+using TarefasDoingAPI.Repositories;
+using TarefasDoingAPI.Repositories.Contracts;
 
 namespace TarefasDoingAPI
 {
@@ -33,6 +35,8 @@ namespace TarefasDoingAPI
                 op.UseSqlite("Data Source=Database\\TarefasDoing.db");
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<ITarefaRepository, TarefaRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

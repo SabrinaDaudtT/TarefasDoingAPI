@@ -8,8 +8,8 @@ namespace TarefasDoingAPI.Repositories.Contracts
 {
     public interface ITarefaRepository
     {
-        void Sicronizacao(List<Tarefas> tafefas);
+        List<Tarefas> Sicronizacao(List<Tarefas> tafefas);
 
-        void Restauracao(ApplicationUser usuario ,DateTime dataUltimaSicronizacao);
+        List<Tarefas> Restauracao(ApplicationUser usuario ,DateTime dataUltimaSicronizacao);
     }
 }

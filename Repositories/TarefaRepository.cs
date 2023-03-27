@@ -11,29 +11,51 @@ namespace TarefasDoingAPI.Repositories
     public class TarefaRepository : ITarefaRepository
     {
         private readonly TarefasDoingContext _banco;
+
         public TarefaRepository(TarefasDoingContext banco)
         {
             _banco = banco;      
         }
 
-        public void Restauracao(ApplicationUser usuario, DateTime dataUltimaSicronizacao)
+        /*Tarefa IdTarefaAPI - App IdTarefa = TarefaLocal */
+        public List<Tarefas> Sicronizacao(List<Tarefas> tarefas)
+        {
+            //Cadastrar novos Registros
+            var tarefasNovas = tarefas.Where(a => a.IdTarefaAPI == 0);
+            if(tarefasNovas.Count() > 0)
+            {
+                foreach (var tarefa in tarefasNovas)
+                {
+                    _banco.Tarefas.Add(tarefa);
+                }
+            }
+
+            //Atualização de Registros (Excluido)
+            var tarefasExcluidasAtualizadas = tarefas.Where(a => a.IdTarefaAPI != 0);
+            if (tarefasExcluidasAtualizadas.Count() > 0)
+            {
+                foreach (var tarefa in tarefasExcluidasAtualizadas)
+                {
+                    _banco.Tarefas.Update(tarefa);
+                }
+            }
+
+            _banco.SaveChanges();
+
+            return tarefasNovas.ToList();
+
+        }
+
+        public List<Tarefas> Restauracao(ApplicationUser usuario, DateTime dataUltimaSicronizacao)
         {
             var query = _banco.Tarefas.Where(a => a.UsuarioId == usuario.Id).AsQueryable();
 
-            if(dataUltimaSicronizacao != null)
+            if (dataUltimaSicronizacao != null)
             {
                 query.Where(a => a.Criado >= dataUltimaSicronizacao || a.Atualizado >= dataUltimaSicronizacao);
             }
 
-            query.ToList<Tarefas>();
-        }
-
-        public void Sicronizacao(List<Tarefas> tafefas)
-        {
-            //Cadastrar novos Registros
-
-            //Atualização de Registros (Excluido)
-            throw new NotImplementedException();
+            return query.ToList<Tarefas>();
         }
     }
 }
