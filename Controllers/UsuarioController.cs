@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TarefasDoingAPI.Models;
 using TarefasDoingAPI.Repositories;
@@ -16,13 +17,16 @@ namespace TarefasDoingAPI.Controllers
     {
         private readonly UsuarioRepository _usuarioRepository;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        public UsuarioController(UsuarioRepository usuarioRepository, SignInManager<ApplicationUser> signInManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public UsuarioController(UsuarioRepository usuarioRepository, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             _usuarioRepository = usuarioRepository;
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
-        
+        [HttpPost("login")]
         public ActionResult Login([FromBody] UsuarioDTO usuarioDTO)
         {
             ModelState.Remove("Nome");
@@ -42,6 +46,35 @@ namespace TarefasDoingAPI.Controllers
                 else
                 {
                     return NotFound("Usuário não encontrado!");
+                }
+            }
+            else
+            {
+                return UnprocessableEntity(ModelState);
+            }
+        }
+
+        [HttpPost("")]
+        public ActionResult Cadastrar([FromBody] UsuarioDTO usuarioDTO)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser usuario = new ApplicationUser();
+                usuario.FullName = usuarioDTO.Nome;
+                usuario.Email = usuarioDTO.Email;
+                var resultado = _userManager.CreateAsync(usuario, usuarioDTO.Senha).Result;
+                if (!resultado.Succeeded)
+                {
+                    List<string> erros = new List<string>();
+                    foreach(var erro in resultado.Errors)
+                    {
+                        erros.Add(erro.Description);
+                    }
+                    return UnprocessableEntity(erros);
+                }
+                else
+                {
+                    return Ok(usuario);
                 }
             }
             else

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TarefasDoingAPI.Database;
+using TarefasDoingAPI.Models;
 using TarefasDoingAPI.Repositories;
 using TarefasDoingAPI.Repositories.Contracts;
 
@@ -35,8 +36,12 @@ namespace TarefasDoingAPI
                 op.UseSqlite("Data Source=Database\\TarefasDoing.db");
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            // Repositories
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             services.AddScoped<ITarefaRepository, TarefaRepository>();
+
+            services.AddDefaultIdentity<ApplicationUser>().AddEntityFrameworkStores<TarefasDoingContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,7 +61,8 @@ namespace TarefasDoingAPI
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+            app.UseStatusCodePages();
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
